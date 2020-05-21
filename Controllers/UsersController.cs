@@ -8,30 +8,42 @@ using Microsoft.EntityFrameworkCore;
 
 using backend.Data;
 using backend.Models;
+using backend.Dtos;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly IAuthRepository _repo;
+        private readonly IConfiguration _config;
         private readonly UserContext _context;
 
-        public UsersController(UserContext context)
+        public UsersController(IAuthRepository repo, IConfiguration config, UserContext context)
         {
+            _repo = repo;
+            _config = config;
             _context = context;
         }
 
-        // GET: api/Users
+        //GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            
+
             var users = await _context.Users.ToListAsync();
             return Ok(users);
         }
 
-        // GET: api/Users/5
+        //GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(long id)
         {
@@ -48,46 +60,93 @@ namespace backend.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(long id, User user)
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> PutUser(long id, User user)
+        // {
+        //     if (id != user.Id)
+        //     {
+        //         return BadRequest();
+        //     }
+
+        //     _context.Entry(user).State = EntityState.Modified;
+
+        //     try
+        //     {
+        //         await _context.SaveChangesAsync();
+        //     }
+        //     catch (DbUpdateConcurrencyException)
+        //     {
+        //         if (!UserExists(id))
+        //         {
+        //             return NotFound();
+        //         }
+        //         else
+        //         {
+        //             throw;
+        //         }
+        //     }
+
+        //     return NoContent();
+        // }
+
+        // POST: api/Users/register
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(UserforRegister userForRegister)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(user).State = EntityState.Modified;
+            userForRegister.Name = userForRegister.Name.ToLower();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (await _repo.UserExists(userForRegister.Name))
+                return BadRequest("Username Already Exists");
 
-            return NoContent();
+            var userToCreate = new User
+            {
+                Name = userForRegister.Name
+            };
+
+            var createdUser = await _repo.Register(userToCreate, userForRegister.Password);
+
+            return StatusCode(201);
+
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        //Login : api/Users/Login
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
 
-           // return CreatedAtAction("GetUser", new { id = user.Id }, user);
-           return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+           var userFormRepo = await _repo.Login(userForLoginDto.Name.ToLower(), userForLoginDto.Password);
+
+           if (userFormRepo == null)
+                return Unauthorized();
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userFormRepo.Id.ToString()),
+                new Claim(ClaimTypes.Name, userFormRepo.Name)
+            };
+            
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var tokenDescriptor = new SecurityTokenDescriptor{
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return Ok(new {
+                token = tokenHandler.WriteToken(token)
+            });
+
+            
         }
 
         // DELETE: api/Users/5
