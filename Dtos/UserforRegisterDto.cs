@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dtos
 {
-    public class UserforRegister
+    public class UserforRegisterDto
     {
         [Required]
         public string Name { get; set; }

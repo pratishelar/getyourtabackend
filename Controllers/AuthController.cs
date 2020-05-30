@@ -21,91 +21,36 @@ namespace backend.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
         private readonly UserContext _context;
 
-        public UsersController(IAuthRepository repo, IConfiguration config, UserContext context)
+        public AuthController(IAuthRepository repo, IConfiguration config, UserContext context)
         {
             _repo = repo;
             _config = config;
             _context = context;
         }
 
-        //GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        {
-
-            var users = await _context.Users.ToListAsync();
-            return Ok(users);
-        }
-
-        //GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(long id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
-        }
-
-        // PUT: api/Users/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(long id, User user)
-        {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Users/register
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserforRegister userForRegister)
+        public async Task<IActionResult> Register(UserforRegisterDto userForRegisterDto)
         {
 
-            userForRegister.Name = userForRegister.Name.ToLower();
+            userForRegisterDto.Name = userForRegisterDto.Name.ToLower();
 
-            if (await _repo.UserExists(userForRegister.Name))
+            if (await _repo.UserExists(userForRegisterDto.Name))
                 return BadRequest("Username Already Exists");
 
             var userToCreate = new User
             {
-                Name = userForRegister.Name
+                Name = userForRegisterDto.Name
             };
 
-            var createdUser = await _repo.Register(userToCreate, userForRegister.Password);
+            var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
 
             return StatusCode(201);
 
@@ -113,13 +58,14 @@ namespace backend.Controllers
 
         //Login : api/Users/Login
         [AllowAnonymous]
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
 
-           var userFormRepo = await _repo.Login(userForLoginDto.Name.ToLower(), userForLoginDto.Password);
 
-           if (userFormRepo == null)
+            var userFormRepo = await _repo.Login(userForLoginDto.Name.ToLower(), userForLoginDto.Password);
+
+            if (userFormRepo == null)
                 return Unauthorized();
 
             var claims = new[]
@@ -127,12 +73,13 @@ namespace backend.Controllers
                 new Claim(ClaimTypes.NameIdentifier, userFormRepo.Id.ToString()),
                 new Claim(ClaimTypes.Name, userFormRepo.Name)
             };
-            
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var tokenDescriptor = new SecurityTokenDescriptor{
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(1),
                 SigningCredentials = creds
@@ -142,7 +89,8 @@ namespace backend.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return Ok(new {
+            return Ok(new
+            {
                 token = tokenHandler.WriteToken(token)
             });
         }
