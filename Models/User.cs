@@ -5,7 +5,7 @@ namespace backend.Models
 {
     public class User
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
@@ -16,7 +16,7 @@ namespace backend.Models
         public string Office { get; set; }
         public string Created { get; set; }
         public string LastActive { get; set; }
-        public ICollection<photo> Photos{ get; set; }
+        public ICollection<Photo> Photos{ get; set; }
     }
 
 

@@ -1,8 +1,9 @@
 using System;
+using Microsoft.AspNetCore.Http;
 
-namespace backend.Models
+namespace backend.Dtos
 {
-    public class Photo
+    public class PhotoForReturnDto
     {
         public int Id { get; set; }
         public string Url { get; set; }
@@ -10,8 +11,5 @@ namespace backend.Models
         public DateTime DateAdded { get; set; }
         public bool IsMain { get; set; }
         public string PublicId { get; set; }
-        public User user { get; set; }
-        public int UserId { get; set; }
-
     }
 }

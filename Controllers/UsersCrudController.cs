@@ -38,7 +38,7 @@ namespace backend.Controllers
 
         //GET Single User: api/UsersCrud/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(long id)
+        public async Task<IActionResult> GetUser(int id)
         {
             var user = await _repo.GetUser(id);
 
@@ -54,7 +54,7 @@ namespace backend.Controllers
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(long id, UserToUpdateDto userToUpdateDto)
+        public async Task<IActionResult> UpdateUser(int id, UserToUpdateDto userToUpdateDto)
         {
             if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
             {

@@ -10,7 +10,8 @@ namespace backend.Data
          void Delete<T>(T entity) where T:class;
          Task<bool> SaveAll();
          Task<IEnumerable<User>> GetUsers();
-         Task<User> GetUser(long Id);
+         Task<User> GetUser(int Id);
+         Task<Photo> GetPhoto(int Id);
 
     }
 }
