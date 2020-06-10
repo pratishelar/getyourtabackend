@@ -39,8 +39,19 @@ namespace backend
             services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<UserContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             services.AddCors();
+            // var mappingConfig = new MapperConfiguration(mc =>
+            //     {
+            //         mc.AddProfile(new AutoMapperProfiles());
+            //     });
+
+            // IMapper mapper = mappingConfig.CreateMapper();
+            // services.AddSingleton(mapper);
+
+            // services.AddMvc();
+           
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
-            services.AddAutoMapper(typeof(UserCrudRepository).Assembly);
+            services.AddAutoMapper(typeof(UserCrudRepository).Assembly, typeof(AuthRepository).Assembly);
+            services.AddControllersWithViews();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUsersCrudRepository, UserCrudRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

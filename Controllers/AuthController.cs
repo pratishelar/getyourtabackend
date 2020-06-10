@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 
 namespace backend.Controllers
 {
@@ -26,12 +27,14 @@ namespace backend.Controllers
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
         private readonly UserContext _context;
+        private readonly IMapper _mapper;
 
-        public AuthController(IAuthRepository repo, IConfiguration config, UserContext context)
+        public AuthController(IAuthRepository repo, IConfiguration config, UserContext context, IMapper mapper)
         {
             _repo = repo;
             _config = config;
             _context = context;
+            _mapper = mapper;
         }
 
         // POST: api/Users/register
@@ -89,9 +92,12 @@ namespace backend.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            var user = _mapper.Map<UserForListDto>(userFormRepo);
+
             return Ok(new
             {
-                token = tokenHandler.WriteToken(token)
+                token = tokenHandler.WriteToken(token),
+                user
             });
         }
 

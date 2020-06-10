@@ -7,25 +7,36 @@ namespace backend.Helpers
 {
     public class AutoMapperProfiles : Profile
     {
-        public AutoMapperProfiles(){
+        public AutoMapperProfiles()
+        {
 
-            CreateMap <User, UserForListDto>()
+            
+
+            CreateMap<User, UserForListDto>()
             .ForMember(dest => dest.Url, opt => opt.MapFrom(scr => scr.Photos.FirstOrDefault(p => p.IsMain).Url))
-            .ForMember(dest => dest.Age, opt => opt.MapFrom (src => src.DateOfBirth.CalculateAge()));
+            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
 
-            CreateMap <User, UserForDetailsDto>()
+            CreateMap<User, UserForDetailsDto>()
             .ForMember(dest => dest.Url, opt => opt.MapFrom(scr => scr.Photos.FirstOrDefault(p => p.IsMain).Url))
-            .ForMember(dest => dest.Age, opt => opt.MapFrom (src => src.DateOfBirth.CalculateAge()));
+            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
 
-            CreateMap <Photo, PhotosForDetailDto>();
+            CreateMap<Photo, PhotosForDetailDto>();
 
-            CreateMap <UserToUpdateDto, User>(); 
+            CreateMap<UserToUpdateDto, User>();
+            CreateMap<Photo, PhotoForReturnDto>();
 
-            CreateMap <Photo, PhotoForReturnDto>().ReverseMap();
+            // CreateMap<Photo, PhotoForReturnDto>(MemberList.Destination)
+            // .ForMember(dest => dest.Url, opt => opt.MapFrom(scr => scr.Url))
+            // .ForMember(dest => dest.Description, opt => opt.MapFrom(scr => scr.Description))
+            // .ForMember(dest => dest.DateAdded, opt => opt.MapFrom(scr => scr.DateAdded))
+            // .ForMember(dest => dest.PublicId, opt => opt.MapFrom(scr => scr.PublicId))
+            // .ForAllOtherMembers(opt => opt.Ignore());
 
-            CreateMap <Photo, PhotoForCreationDto>();
+            CreateMap<PhotoForCreationDto, Photo>();
 
         }
-        
+
+
+
     }
 }
