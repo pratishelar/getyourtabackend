@@ -33,6 +33,7 @@ namespace backend.Helpers
             // .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<PhotoForCreationDto, Photo>();
+            CreateMap<UserforRegisterDto, User>();
 
         }
 

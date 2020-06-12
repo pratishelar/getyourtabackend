@@ -48,14 +48,13 @@ namespace backend.Controllers
             if (await _repo.UserExists(userForRegisterDto.Name))
                 return BadRequest("Username Already Exists");
 
-            var userToCreate = new User
-            {
-                Name = userForRegisterDto.Name
-            };
+            var userToCreate = _mapper.Map<User>(userForRegisterDto);
 
             var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
 
-            return StatusCode(201);
+            var userToReturn = _mapper.Map<UserForDetailsDto>(createdUser);
+
+            return CreatedAtRoute("GetUser", new {controller = "UsersCrud", id = createdUser.Id}, userToReturn);
 
         }
 
