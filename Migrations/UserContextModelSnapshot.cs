@@ -53,7 +53,7 @@ namespace backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Created")
+                    b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateOfBirth")
@@ -65,7 +65,7 @@ namespace backend.Migrations
                     b.Property<string>("GradePay")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("LastActive")
+                    b.Property<DateTime>("LastActive")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")

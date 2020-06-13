@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using backend.Data;
 using backend.Dtos;
+using backend.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
+    [ServiceFilter(typeof(LogUserActivity))]
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
