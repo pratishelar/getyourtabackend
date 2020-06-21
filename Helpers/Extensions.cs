@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace backend.Helpers
 {
@@ -11,6 +12,15 @@ namespace backend.Helpers
             response.Headers.Add("Access-Control-Expose-Header", "Application-Error");
             response.Headers.Add("Access-Control-Allow-Origin", "*");
 
+        }
+
+        public static void AddPagination(this HttpResponse response, int currentPage, int itemsPerPage, int totalItems, int totalPages)
+        {
+                var paginationHeader = new PaginationHeader(currentPage, itemsPerPage, totalItems, totalPages);
+                response.Headers.Add("pagination", JsonConvert.SerializeObject(paginationHeader));
+                 response.Headers.Add("Access-Control-Expose-Header", "pagination");
+
+                
         }
 
         public static int CalculateAge(this DateTime theDateTime){

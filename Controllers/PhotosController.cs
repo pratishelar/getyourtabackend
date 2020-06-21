@@ -88,13 +88,6 @@ namespace backend.Controllers
             photoForCreationDto.PublicId = uploadResult.PublicId;
              var photo = _mapper.Map<Photo>(photoForCreationDto);
 
-            // Photo photo = new Photo();
-            
-            // photo.Url = photoForCreationDto.Url;
-            // photo.Description = "";
-            // photo.PublicId = photoForCreationDto.PublicId;
-            // photo.DateAdded = photoForCreationDto.DateAdded;
-
             if (!userFromRepo.Photos.Any(u => u.IsMain))
                 photo.IsMain = true;
 

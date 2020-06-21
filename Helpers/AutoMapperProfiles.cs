@@ -35,6 +35,9 @@ namespace backend.Helpers
             CreateMap<PhotoForCreationDto, Photo>();
             CreateMap<UserforRegisterDto, User>();
 
+            CreateMap<EventForReturnDto, Event>(); 
+            CreateMap<Event, EventForReturnDto>();
+
         }
 
 

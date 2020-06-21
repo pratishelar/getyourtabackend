@@ -17,6 +17,7 @@ namespace backend.Models
         public DateTime Created { get; set; }
         public DateTime LastActive { get; set; }
         public ICollection<Photo> Photos{ get; set; }
+       
     }
 
 

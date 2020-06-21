@@ -54,6 +54,7 @@ namespace backend
             services.AddControllersWithViews();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUsersCrudRepository, UserCrudRepository>();
+            services.AddScoped<IEventCrudRepository, EventCrudRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
